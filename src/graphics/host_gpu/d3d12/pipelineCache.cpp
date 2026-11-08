@@ -1556,7 +1556,6 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 
 PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(std::span<const ShaderVertexInputInfo> vertex_info,
                                                                const CompiledProgram&       program) {
-	const bool tess = vertex_info[0].logical_stage == ShaderType::Local;
 	// (Translate locks the cache itself.)
 	const auto* shader_ptr = Translate(program, ShaderType::Compute);
 	static const Shader skipped;
