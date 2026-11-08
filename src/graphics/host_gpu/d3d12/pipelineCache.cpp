@@ -1219,9 +1219,15 @@ void PipelineCache::StartPrewarm(uint32_t workers) {
 	Prewarm::SetState(Prewarm::State::Running);
 	m_prewarm_running  = true;
 	m_prewarm_start_ms = GetTickCount64();
+<<<<<<< HEAD
 	m_cache_file.Log("prewarm: building {} of the {} described pipelines, {} at a time", queued, m_file_records.size(), workers);
 	m_prewarm_active = workers;
 	for (uint32_t i = 0; i < workers; i++) {
+=======
+	m_cache_file.Log("prewarm: building {} of the {} described pipelines, {} at a time", queued, m_file_records.size(), PREWARM_WORKERS);
+	m_prewarm_active = PREWARM_WORKERS;
+	for (uint32_t i = 0; i < PREWARM_WORKERS; i++) {
+>>>>>>> 9bc4544d (UWP app: known pipelines built two at a time)
 		m_prewarm_threads.emplace_back([this] { PrewarmWorker(); });
 	}
 }
