@@ -756,6 +756,12 @@ add_executable(psml_tests EXCLUDE_FROM_ALL
 	"${KYTY_SOURCE_DIR}/loader/timer.cpp")
 target_link_libraries(psml_tests common kyty_test_gtest)
 target_include_directories(psml_tests PRIVATE ${inc_headers})
+
+add_executable(x64_instruction_emulator_tests EXCLUDE_FROM_ALL
+    "${KYTY_TESTS_DIR}/X64InstructionEmulatorTests.cpp"
+    "${KYTY_SOURCE_DIR}/loader/x64InstructionEmulator.cpp")
+target_link_libraries(x64_instruction_emulator_tests common kyty_test_gtest Zydis)
+target_include_directories(x64_instruction_emulator_tests PRIVATE ${inc_headers})
 target_compile_definitions(virtual_memory_allocation_tests PRIVATE
 	KYTY_VIRTUAL_MEMORY_ALLOCATION_TESTS=1)
 
