@@ -483,6 +483,8 @@ std::vector<DxilShader> DxilCompiler::TranslateLinked(std::span<const LinkedStag
 			case LinkedStage::Kind::Geometry: input.stage = DXIL_SPIRV_SHADER_GEOMETRY; break;
 			case LinkedStage::Kind::Pixel: input.stage = DXIL_SPIRV_SHADER_FRAGMENT; break;
 			case LinkedStage::Kind::Mesh: input.stage = DXIL_SPIRV_SHADER_MESH; break;
+			case LinkedStage::Kind::Hull:   input.stage = DXIL_SPIRV_SHADER_HULL;   break;
+			case LinkedStage::Kind::Domain: input.stage = DXIL_SPIRV_SHADER_DOMAIN; break;
 		}
 		inputs.push_back(input);
 	}
