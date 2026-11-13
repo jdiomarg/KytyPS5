@@ -210,11 +210,11 @@ private:
 	const Shader*         Translate(const CompiledProgram& program, ShaderType stage);
 	const LinkedPrograms& Link(const GraphicsPrograms& programs, bool rect_list,
 	                           bool sample_rate_shading, bool clip_halfz,
-	                           const ShaderVertexInputInfo& vertex_info,
+	                           const std::array<ShaderVertexInputInfo, 3>& vertex_info,
 	                           const ShaderPixelInputInfo*  ps_input_info);
 	ID3D12RootSignature*  GetRootSignature(const RootLayout& layout);
 	std::unique_ptr<Pipeline> CreateGraphicsPipeline(const GraphicsKey& key,
-	                                                 const ShaderVertexInputInfo& vs_input_info,
+	                                                 const std::array<ShaderVertexInputInfo, 3>& vs_input_info,
 	                                                 const ShaderPixelInputInfo* ps_input_info,
 	                                                 const GraphicsPrograms&     programs);
 	// Sets the state of a graphics pipeline stream after its shaders: blending, rasterization,
