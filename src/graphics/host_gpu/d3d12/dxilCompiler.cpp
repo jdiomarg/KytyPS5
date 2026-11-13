@@ -89,6 +89,8 @@ dxil_spirv_shader_stage SpirvStage(ShaderType stage) {
 		case ShaderType::Vertex: return DXIL_SPIRV_SHADER_VERTEX;
 		case ShaderType::Pixel: return DXIL_SPIRV_SHADER_FRAGMENT;
 		case ShaderType::Compute: return DXIL_SPIRV_SHADER_COMPUTE;
+		case ShaderType::TessellationControl: return DXIL_SPIRV_SHADER_HULL;
+		case ShaderType::TessellationEvaluation: return DXIL_SPIRV_SHADER_DOMAIN;
 		default: return DXIL_SPIRV_SHADER_NONE;
 	}
 }
