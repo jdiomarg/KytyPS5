@@ -308,6 +308,9 @@ struct GraphicsPipelineStream {
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS, D3D12_SHADER_BYTECODE>          vs;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS, D3D12_SHADER_BYTECODE>          gs;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, D3D12_SHADER_BYTECODE>          ps;
+	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, D3D12_SHADER_BYTECODE>          hs;
+	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, D3D12_SHADER_BYTECODE>          ds;
+	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_TESSELLATION, D3D12_TESSELLATION_DESC> tessellation;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, D3D12_BLEND_DESC>            blend;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, UINT> sample_mask;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, D3D12_RASTERIZER_DESC>
@@ -1720,6 +1723,10 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	                                             programs.vertex[0].id, programs.pixel.id)
 	                               : fmt::format("{} {:x}", mesh ? "ms" : "vs", programs.vertex[0].id));
 	pipeline->trace.dxil  = {&linked.vertex};
+	if (tess) {
+	        pipeline->trace.dxil.push_back(&linked.hull);
+	        pipeline->trace.dxil.push_back(&linked.domain);
+	}
 	pipeline->trace.spirv = {emulated ? programs.vertex[0].mesh_fetch : programs.vertex[0].spirv};
 	if (linked.watched) {
 		// the watchdog (gpu_hang_exit_seconds) logs how many draws of this pipeline finished
@@ -1756,7 +1763,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	} else {
 		pipeline->layout.Add(vs_input_info[0].stage.module->info,
 		                     linked.vertex.requires_runtime_data ||
-		                         linked.geometry.requires_runtime_data);
+		                         linked.geometry.requires_runtime_data || (tess && (linked.hull.requires_runtime_data || linked.domain.requires_runtime_data)));
 	}
 	if (ps_input_info != nullptr) {
 		pipeline->layout.Add(ps_input_info->stage.module->info, linked.pixel.requires_runtime_data);
@@ -1764,7 +1771,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	// The vertex stage reads the user clip planes from the push constants (PushData::UserClipPlaneDword).
 	pipeline->layout.push_constants = pipeline->layout.push_constants || vs_input_info[0].user_clip_planes != 0;
 	pipeline->root_signature = GetRootSignature(pipeline->layout);
-	if (pipeline->root_signature == nullptr || !linked.vertex.IsValid() || (ps_input_info != nullptr && !linked.pixel.IsValid()) || (rect_list && !linked.geometry.IsValid())) {
+	if (pipeline->root_signature == nullptr || !linked.vertex.IsValid() || (ps_input_info != nullptr && !linked.pixel.IsValid()) || (rect_list && !linked.geometry.IsValid()) || (tess && (!linked.hull.IsValid() || !linked.domain.IsValid()))) {
 		return pipeline; // reported where it failed; the draws that need it are skipped
 	}
 
@@ -1819,14 +1826,23 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	stream.vs.value   = Bytecode(linked.vertex);
 	stream.gs.value   = Bytecode(linked.geometry);
 	stream.ps.value   = Bytecode(linked.pixel);
+        if (tess) {
+                stream.hs.value = Bytecode(linked.hull);
+                stream.ds.value = Bytecode(linked.domain);
+                stream.tessellation.value = {
+                    static_cast<D3D12_TESSELLATOR_DOMAIN>(vs_input_info[0].tess.domain),
+                    static_cast<D3D12_TESSELLATOR_PARTITIONING>(vs_input_info[0].tess.partitioning),
+                    static_cast<D3D12_TESSELLATOR_OUTPUT_PRIMITIVE>(vs_input_info[0].tess.output_topology)
+                };
+        }
 	SetOutputState(stream, key);
 	stream.input_layout.value = {elements.data(), static_cast<UINT>(elements.size())};
 	stream.strip_cut.value    = static_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>(key.strip_cut);
-	stream.topology.value     = TopologyType(params.topology);
+	stream.topology.value     = tess ? D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH : TopologyType(params.topology);
 
 	const auto loaded_before = m_loaded_pipelines;
 	pipeline->pipeline = LoadOrCreate(GraphicsPipelineName(stream, elements, root_layout_hash),
-	                                  {sizeof(stream), &stream}, {&linked.vertex, &linked.geometry, &linked.pixel});
+	                                  {sizeof(stream), &stream}, {&linked.vertex, &linked.geometry, &linked.hull, &linked.domain, &linked.pixel});
 	CountNewPipeline(loaded_before, linked.from_cache);
 	return pipeline;
 }
