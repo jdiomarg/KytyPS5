@@ -35,7 +35,7 @@ struct SpecializationConstant {
 
 // A stage of a graphics pipeline compiled by DxilCompiler::CompileLinked.
 struct LinkedStage {
-	enum class Kind : uint8_t { Vertex, Geometry, Pixel, Mesh };
+	enum class Kind : uint8_t { Vertex, Geometry, Pixel, Mesh , Hull, Domain };
 
 	std::span<const uint32_t> spirv;
 	Kind                      kind = Kind::Vertex;
