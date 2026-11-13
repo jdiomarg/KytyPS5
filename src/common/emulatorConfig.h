@@ -48,6 +48,12 @@ constexpr bool IsConfiguredUserIdValid(int32_t user_id) {
 
 constexpr uint32_t kGuestRamBudgetAuto = 0xFFFFFFFFu;
 
+enum class D3D12TessellationMode {
+        Skip,          // current behavior: tessellated draws are skipped entirely
+        FlattenPatch,  // draw the raw control-point patch as flat topology (not yet implemented)
+        Native,        // full D3D12 hull/domain shader pipeline (not yet implemented)
+};
+
 struct ConfigOptions {
 	uint32_t               screen_width                = 1280;
 	uint32_t               screen_height               = 720;
@@ -93,6 +99,7 @@ struct ConfigOptions {
 	bool                   readback_storage_images     = false;
 	bool                   sync_raw_image_buffers      = false;
 	bool                   tessellation_enabled        = false;
+	D3D12TessellationMode d3d12_tessellation_mode = D3D12TessellationMode::Skip;
 	bool                   occlusion_queries_enabled   = false;
 	bool                   relaxed_shader_float        = false;
 	bool                   lod_stats_enabled           = false;
@@ -243,6 +250,7 @@ bool ReadbackLinearImagesEnabled();
 bool ReadbackTiledImagesEnabled();
 bool ReadbackStorageImagesEnabled();
 bool SyncRawImageBuffersEnabled();
+D3D12TessellationMode D3D12TessellationModeSetting();
 bool TessellationEnabled();
 bool OcclusionQueriesEnabled();
 bool RelaxedShaderFloatEnabled();

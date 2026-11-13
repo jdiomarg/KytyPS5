@@ -619,11 +619,26 @@ void RenderExecutor::ExecutePreparedDraw(CommandBuffer& buffer, const DrawCallIn
 		}
 	};
 	if (state.VertexStages().size() != 1) {
-		static std::atomic_bool warned = false;
-		WarnOnce(warned, "tessellation is not supported; its draws are skipped");
-		log_skip("tessellation is not supported");
-		CountSkippedDraw("tessellation");
-		return;
+	        const auto tess_mode = Config::D3D12TessellationModeSetting();
+	        static std::atomic_bool warned_skip = false;
+	        static std::atomic_bool warned_fallback = false;
+	        switch (tess_mode) {
+	                case Config::D3D12TessellationMode::Skip:
+	                        WarnOnce(warned_skip, "tessellation is not supported; its draws are skipped");
+	                        log_skip("tessellation is not supported");
+	                        CountSkippedDraw("tessellation");
+	                        return;
+	                case Config::D3D12TessellationMode::FlattenPatch:
+	                        WarnOnce(warned_fallback, "tessellation flatten not yet implemented");
+	                        log_skip("tessellation fallback");
+	                        CountSkippedDraw("tessellation-fallback");
+	                        return;
+	                case Config::D3D12TessellationMode::Native:
+	                        WarnOnce(warned_skip, "tessellation native not yet implemented");
+	                        log_skip("tessellation native not yet implemented");
+	                        CountSkippedDraw("tessellation-native-not-ready");
+	                        return;
+	        }
 	}
 	const bool mesh = vs_input_info.stage.module->info.stage == ShaderType::Mesh;
 	// A mesh program the device cannot run as a mesh shader runs as a compute shader whose output a

@@ -213,6 +213,10 @@ bool SyncRawImageBuffersEnabled() {
 	return g_config->sync_raw_image_buffers;
 }
 
+D3D12TessellationMode D3D12TessellationModeSetting() {
+        return g_config->d3d12_tessellation_mode;
+}
+
 bool TessellationEnabled() {
 	return g_config->tessellation_enabled;
 }
