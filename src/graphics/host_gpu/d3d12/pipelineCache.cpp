@@ -1708,7 +1708,8 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	const bool  emulated  = mesh && vs_input_info[0].mesh.compute_emulation;
 	const bool  native_mesh = mesh && !emulated;
 	// Mesh programs expand rect lists themselves.
-	const bool  rect_list = !mesh && params.topology == vk::PrimitiveTopology::ePatchList;
+	const bool  tess      = vs_input_info[0].logical_stage == ShaderType::Local;
+	const bool  rect_list = !mesh && !tess && params.topology == vk::PrimitiveTopology::ePatchList;
 	const auto& linked = Link(programs, rect_list, params.sample_shading_enable,
 	                          params.negative_one_to_one, vs_input_info, ps_input_info);
 
