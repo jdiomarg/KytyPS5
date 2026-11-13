@@ -205,7 +205,7 @@ private:
 		bool              watched    = false; // the GPU watchdog counts its finished draws
 	};
 	// Vertex and pixel program ids, rect list, sample-rate shading, OpenGL clip-space depth.
-	using LinkKey = std::tuple<uint64_t, uint64_t, bool, bool, bool>;
+        using LinkKey = std::tuple<uint64_t, uint64_t, uint64_t, uint64_t, bool, bool, bool>;
 
 	const Shader*         Translate(const CompiledProgram& program, ShaderType stage);
 	const LinkedPrograms& Link(const GraphicsPrograms& programs, bool rect_list,

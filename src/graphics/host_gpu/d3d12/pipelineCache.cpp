@@ -1634,7 +1634,7 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 	const bool  ps     = ps_input_info != nullptr;
 	auto [found, inserted] =
 	    m_linked.try_emplace(
-	        LinkKey {vertex.id, ps ? pixel.id : 0, rect_list, sample_rate_shading, clip_halfz});
+            LinkKey {vertex.id, ps ? pixel.id : 0, 0, 0, rect_list, sample_rate_shading, clip_halfz});
 	if (!inserted) {
 		return found->second;
 	}
