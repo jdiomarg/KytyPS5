@@ -634,10 +634,8 @@ void RenderExecutor::ExecutePreparedDraw(CommandBuffer& buffer, const DrawCallIn
 	                        CountSkippedDraw("tessellation-fallback");
 	                        return;
 	                case Config::D3D12TessellationMode::Native:
-	                        WarnOnce(warned_skip, "tessellation native not yet implemented");
-	                        log_skip("tessellation native not yet implemented");
-	                        CountSkippedDraw("tessellation-native-not-ready");
-	                        return;
+	                WarnOnce(warned_skip, "tessellation native mode enabled (experimental)");
+	                break;
 	        }
 	}
 	const bool mesh = vs_input_info.stage.module->info.stage == ShaderType::Mesh;

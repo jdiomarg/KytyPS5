@@ -365,6 +365,17 @@ static bool ParseArgs(int argc, char* argv[], RunOptions& options, bool& show_he
 				::printf("invalid present mode: %s\n", value.c_str());
 				return false;
 			}
+		} else if (arg == "--d3d12-tessellation") {
+		        if (value == "skip") {
+		                options.config.d3d12_tessellation_mode = Config::D3D12TessellationMode::Skip;
+		        } else if (value == "flatten" || value == "flatten-patch") {
+		                options.config.d3d12_tessellation_mode = Config::D3D12TessellationMode::FlattenPatch;
+		        } else if (value == "native") {
+		                options.config.d3d12_tessellation_mode = Config::D3D12TessellationMode::Native;
+		        } else {
+		                ::printf("invalid d3d12 tessellation mode: %s (expected: skip, flatten, native)\n", value.c_str());
+		                return false;
+		        }
 		} else if (arg == "--gpu") {
 			if (!ParseInt32(value, options.config.gpu_index)) {
 				::printf("invalid gpu index: %s\n", value.c_str());
