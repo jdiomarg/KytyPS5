@@ -12,3 +12,7 @@ _Build/
 *.bak
 
 aqtinstall.log
+
+tests-baseline*.log
+
+build-release*.log

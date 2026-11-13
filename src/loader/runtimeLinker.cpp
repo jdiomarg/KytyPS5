@@ -1,4 +1,5 @@
 #include "loader/runtimeLinker.h"
+#include "loader/crashReport.h"
 
 #include "common/assert.h"
 #include "common/common.h"
@@ -718,6 +719,9 @@ static bool KytyExceptionHandler(const Common::HostException::ExceptionInfo& exc
 			return true;
 		}
 	}
+	{ 		Loader::CrashReport::FaultInfo fi; 		fi.exception_type         = static_cast<int>(info->type); 		fi.exception_address      = info->exception_address; 		fi.access_violation_type  = static_cast<int>(info->access_violation_type); 		fi.access_violation_vaddr = info->access_violation_vaddr; 		fi.rax = info->rax; fi.rbx = info->rbx; fi.rcx = info->rcx; fi.rdx = info->rdx; 		fi.rsi = info->rsi; fi.rdi = info->rdi; fi.rbp = info->rbp; fi.rsp = info->rsp; 		fi.r8  = info->r8;  fi.r9  = info->r9;  fi.r10 = info->r10; fi.r11 = info->r11; 		fi.r12 = info->r12; fi.r13 = info->r13; fi.r14 = info->r14; fi.r15 = info->r15; 		const auto crash_path = Loader::CrashReport::Write("unhandled_exception", &fi); 		std::printf("--- Crash report: %s ---\n", crash_path); 	}
+	{ 		Loader::CrashReport::FaultInfo fi; 		fi.exception_type         = static_cast<int>(info->type); 		fi.exception_address      = info->exception_address; 		fi.access_violation_type  = static_cast<int>(info->access_violation_type); 		fi.access_violation_vaddr = info->access_violation_vaddr; 		fi.rax = info->rax; fi.rbx = info->rbx; fi.rcx = info->rcx; fi.rdx = info->rdx; 		fi.rsi = info->rsi; fi.rdi = info->rdi; fi.rbp = info->rbp; fi.rsp = info->rsp; 		fi.r8  = info->r8;  fi.r9  = info->r9;  fi.r10 = info->r10; fi.r11 = info->r11; 		fi.r12 = info->r12; fi.r13 = info->r13; fi.r14 = info->r14; fi.r15 = info->r15; 		const auto crash_path = Loader::CrashReport::Write("unhandled_exception", &fi); 		std::printf("--- Crash report: %s ---\n", crash_path); 	}
+	{ 		Loader::CrashReport::FaultInfo fi; 		fi.exception_type         = static_cast<int>(info->type); 		fi.exception_address      = info->exception_address; 		fi.access_violation_type  = static_cast<int>(info->access_violation_type); 		fi.access_violation_vaddr = info->access_violation_vaddr; 		fi.rax = info->rax; fi.rbx = info->rbx; fi.rcx = info->rcx; fi.rdx = info->rdx; 		fi.rsi = info->rsi; fi.rdi = info->rdi; fi.rbp = info->rbp; fi.rsp = info->rsp; 		fi.r8  = info->r8;  fi.r9  = info->r9;  fi.r10 = info->r10; fi.r11 = info->r11; 		fi.r12 = info->r12; fi.r13 = info->r13; fi.r14 = info->r14; fi.r15 = info->r15; 		const auto crash_path = Loader::CrashReport::Write("unhandled_exception", &fi); 		std::printf("--- Crash report: %s ---\n", crash_path); 	}
 	// Report whatever guest context can be read safely before terminating: which guest thread
 	// faulted, the register file, the faulting code bytes and the top of its stack.
 	{
