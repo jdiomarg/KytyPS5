@@ -89,7 +89,7 @@ dxil_spirv_shader_stage SpirvStage(ShaderType stage) {
 		case ShaderType::Vertex: return DXIL_SPIRV_SHADER_VERTEX;
 		case ShaderType::Pixel: return DXIL_SPIRV_SHADER_FRAGMENT;
 		case ShaderType::Compute: return DXIL_SPIRV_SHADER_COMPUTE;
-		case ShaderType::TessellationControl: return DXIL_SPIRV_SHADER_TESS_CONTROL;
+		case ShaderType::TessellationControl: return DXIL_SPIRV_SHADER_TESS_CTRL;
 		case ShaderType::TessellationEvaluation: return DXIL_SPIRV_SHADER_TESS_EVAL;
 		default: return DXIL_SPIRV_SHADER_NONE;
 	}
@@ -483,7 +483,7 @@ std::vector<DxilShader> DxilCompiler::TranslateLinked(std::span<const LinkedStag
 			case LinkedStage::Kind::Geometry: input.stage = DXIL_SPIRV_SHADER_GEOMETRY; break;
 			case LinkedStage::Kind::Pixel: input.stage = DXIL_SPIRV_SHADER_FRAGMENT; break;
 			case LinkedStage::Kind::Mesh: input.stage = DXIL_SPIRV_SHADER_MESH; break;
-			case LinkedStage::Kind::Hull:   input.stage = DXIL_SPIRV_SHADER_TESS_CONTROL;   break;
+			case LinkedStage::Kind::Hull:   input.stage = DXIL_SPIRV_SHADER_TESS_CTRL;   break;
 			case LinkedStage::Kind::Domain: input.stage = DXIL_SPIRV_SHADER_TESS_EVAL; break;
 		}
 		inputs.push_back(input);
