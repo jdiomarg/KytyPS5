@@ -310,7 +310,6 @@ struct GraphicsPipelineStream {
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, D3D12_SHADER_BYTECODE>          ps;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, D3D12_SHADER_BYTECODE>          hs;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, D3D12_SHADER_BYTECODE>          ds;
-	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_TESSELLATION, D3D12_TESSELLATION_DESC> tessellation;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, D3D12_BLEND_DESC>            blend;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, UINT> sample_mask;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, D3D12_RASTERIZER_DESC>
@@ -1829,12 +1828,6 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
         if (tess) {
                 stream.hs.value = Bytecode(linked.hull);
                 stream.ds.value = Bytecode(linked.domain);
-                stream.tessellation.value = {
-                    static_cast<D3D_TESSELLATOR_DOMAIN>(vs_input_info[0].tess.domain),
-                    static_cast<D3D_TESSELLATOR_PARTITIONING>(vs_input_info[0].tess.partitioning),
-                    static_cast<D3D_TESSELLATOR_OUTPUT_PRIMITIVE>(vs_input_info[0].tess.output_topology)
-                };
-        }
 	SetOutputState(stream, key);
 	stream.input_layout.value = {elements.data(), static_cast<UINT>(elements.size())};
 	stream.strip_cut.value    = static_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>(key.strip_cut);
