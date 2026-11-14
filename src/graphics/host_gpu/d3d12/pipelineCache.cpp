@@ -384,6 +384,8 @@ private:
 	std::vector<uint64_t> m_parts;
 };
 
+        }
+
 template <typename Stream>
 std::wstring GraphicsPipelineName(const Stream&                             stream,
                                   std::span<const D3D12_INPUT_ELEMENT_DESC> elements,
@@ -1828,6 +1830,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
         if (tess) {
                 stream.hs.value = Bytecode(linked.hull);
                 stream.ds.value = Bytecode(linked.domain);
+        }
 	SetOutputState(stream, key);
 	stream.input_layout.value = {elements.data(), static_cast<UINT>(elements.size())};
 	stream.strip_cut.value    = static_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>(key.strip_cut);
@@ -1840,7 +1843,10 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	return pipeline;
 }
 
+        }
+
 template <typename Stream>
+
 void PipelineCache::SetOutputState(Stream& stream, const GraphicsKey& key) const {
 	const auto& rendering = key.state.rendering;
 	const auto& params    = key.state.static_params;
