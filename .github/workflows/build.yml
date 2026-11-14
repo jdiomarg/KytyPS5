@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SCCACHE_GHA_ENABLED: "true"
   KYTY_BUILD_ORIGIN: ${{ github.repository != 'KytyPS5/KytyPS5' && 'Fork' || github.event_name == 'push' && 'Official' || 'Source' }}
   KYTY_BUILD_REPOSITORY: ${{ github.repository }}
@@ -50,9 +51,11 @@ jobs:
           $vcpkgRoot = Split-Path (Get-Command vcpkg).Source
           $portHash = (Get-FileHash "$vcpkgRoot\ports\glslang\vcpkg.json" -Algorithm SHA256).Hash
           "root=$vcpkgRoot" |
-            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Out-File -FilePath $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_OUTPUT -Encoding utf8 -Append
           "port_hash=$($portHash.ToLowerInvariant())" |
-            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Out-File -FilePath $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Cache glslang
         id: glslang_cache
@@ -69,7 +72,8 @@ jobs:
             vcpkg install glslang[tools,opt]:x64-windows
           }
           "$vcpkgRoot\installed\x64-windows\tools\glslang" |
-            Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            Out-File -FilePath $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Qt 6.10.3
         uses: jurplel/install-qt-action@v4
@@ -78,7 +82,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2022_64
-          cache: true
+          cache: false
 
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.11
@@ -168,7 +172,7 @@ jobs:
           host: mac
           target: desktop
           arch: clang_64
-          cache: true
+          cache: false
 
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.11
@@ -225,6 +229,7 @@ jobs:
       - name: Bundle MoltenVK
         shell: bash
         env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           MOLTENVK_VERSION: v1.4.2
           MOLTENVK_SHA256: f95765a6229cb7b915990a2890ce12ebe36a730b021545d3d52ae69ce4c4024e
         run: |
@@ -338,7 +343,7 @@ jobs:
           host: linux
           target: desktop
           arch: linux_gcc_64
-          cache: true
+          cache: false
 
       - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.11
@@ -452,6 +457,7 @@ jobs:
     permissions:
       contents: write
     env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_NAME: ${{ needs.metadata.outputs.release_tag }}
 
     steps:
@@ -511,6 +517,7 @@ jobs:
       - name: Create release
         shell: bash
         env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           GH_TOKEN: ${{ github.token }}
         run: |
           assets=()

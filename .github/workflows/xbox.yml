@@ -45,12 +45,18 @@ jobs:
       # pipeline cache).
       - name: Folders
         run: |
-          $deps = "$env:RUNNER_TEMP\deps"
+          $deps = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\deps"
           New-Item -ItemType Directory "$deps\nuget" -Force | Out-Null
-          "KYTY_DEPS=$deps" >> $env:GITHUB_ENV
-          "KYTY_UWP_BUILD=$env:RUNNER_TEMP\uwp" >> $env:GITHUB_ENV
-          "KYTY_SPIRV_TO_DXIL_ROOT=$deps\spirv_to_dxil" >> $env:GITHUB_ENV
-          "KYTY_WINPTHREAD_DLL=C:\msys64\ucrt64\bin\libwinpthread-1.dll" >> $env:GITHUB_ENV
+          "KYTY_DEPS=$deps" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_ENV
+          "KYTY_UWP_BUILD=$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\uwp" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_ENV
+          "KYTY_SPIRV_TO_DXIL_ROOT=$deps\spirv_to_dxil" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_ENV
+          "KYTY_WINPTHREAD_DLL=C:\msys64\ucrt64\bin\libwinpthread-1.dll" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_ENV
 
       - name: Cache spirv_to_dxil
         id: spirv-to-dxil-cache
@@ -66,13 +72,16 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           $commit = [regex]::Match((Get-Content 3rdparty\spirv_to_dxil\README.md -Raw), 'commit `([0-9a-f]{40})`').Groups[1].Value
           if (-not $commit) { throw 'no Mesa commit in 3rdparty/spirv_to_dxil/README.md' }
-          $mesa = "$env:RUNNER_TEMP\mesa"
+          $mesa = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\mesa"
           git init -q $mesa
           git -C $mesa fetch -q --depth 1 https://gitlab.freedesktop.org/mesa/mesa.git $commit
           git -C $mesa checkout -q FETCH_HEAD
-          git -C $mesa apply "$env:GITHUB_WORKSPACE\3rdparty\spirv_to_dxil\spirv_to_dxil.patch"
+          git -C $mesa apply "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_WORKSPACE\3rdparty\spirv_to_dxil\spirv_to_dxil.patch"
           python -m pip install --quiet meson==1.12.1 mako pyyaml packaging
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          $vs = & "${env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
           & "$vs\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -HostArch amd64 -SkipAutomaticLocation | Out-Null
           meson setup "$mesa\build" $mesa --backend=ninja -Dbuildtype=release `
             -Db_ndebug=true -Db_vscrt=mt -Dplatforms=windows -Dgallium-drivers= -Dvulkan-drivers=microsoft-experimental `
@@ -80,7 +89,8 @@ jobs:
             -Dopengl=false -Dgles1=disabled -Dgles2=disabled -Dspirv-tools=disabled -Dbuild-tests=false `
             -Dvideo-codecs= -Dmin-windows-version=10 -Dzlib=disabled -Dzstd=disabled
           ninja -C "$mesa\build" src/microsoft/spirv_to_dxil/spirv_to_dxil.dll
-          $root = $env:KYTY_SPIRV_TO_DXIL_ROOT
+          $root = $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueKYTY_SPIRV_TO_DXIL_ROOT
           New-Item -ItemType Directory "$root\include", "$root\lib", "$root\bin" -Force | Out-Null
           Copy-Item "$mesa\src\microsoft\spirv_to_dxil\spirv_to_dxil.h", "$mesa\src\microsoft\compiler\dxil_versions.h" "$root\include"
           Copy-Item "$mesa\build\src\microsoft\spirv_to_dxil\spirv_to_dxil.lib" "$root\lib"
@@ -90,9 +100,11 @@ jobs:
         run: |
           foreach ($package in @(@('Microsoft.UI.Xaml', '2.8.7'), @('Microsoft.Web.WebView2', '1.0.2849.39'))) {
             $name, $version = $package
-            $zip = "$env:RUNNER_TEMP\$name.$version.zip"
+            $zip = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\$name.$version.zip"
             Invoke-WebRequest "https://www.nuget.org/api/v2/package/$name/$version" -OutFile $zip
-            Expand-Archive $zip "$env:KYTY_DEPS\nuget\$($name.ToLower()).$version"
+            Expand-Archive $zip "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueKYTY_DEPS\nuget\$($name.ToLower()).$version"
           }
 
       # The UCRT build of libwinpthread-1.dll, from the MSYS2 that the runner has.
@@ -100,17 +112,23 @@ jobs:
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           C:\msys64\usr\bin\bash.exe -lc 'pacman -Sy --noconfirm --needed mingw-w64-ucrt-x86_64-libwinpthread'
-          if (-not (Test-Path $env:KYTY_WINPTHREAD_DLL)) { throw "missing $env:KYTY_WINPTHREAD_DLL" }
+          if (-not (Test-Path $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueKYTY_WINPTHREAD_DLL)) { throw "missing $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueKYTY_WINPTHREAD_DLL" }
 
       # The build only runs glslang's compiler, so it comes ready-made from Khronos. (Built with vcpkg it took 16 minutes, and as GitHub's caches
       # are per branch, every new series built it again.)
       - name: glslang
         run: |
-          $zip = "$env:RUNNER_TEMP\glslang.zip"
+          $zip = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\glslang.zip"
           Invoke-WebRequest https://github.com/KhronosGroup/glslang/releases/download/16.6.0/glslang-16.6.0-windows-x86_64-release.zip -OutFile $zip
           if ((Get-FileHash $zip -Algorithm SHA256).Hash -ne '82bf434e69b9bb4829de7e2b4bc2c5e7a7861e53d66cf75e5cc70f5f694a8d9b') { throw 'glslang: unexpected download' }
-          Expand-Archive $zip "$env:RUNNER_TEMP\glslang"
-          (Get-ChildItem "$env:RUNNER_TEMP\glslang" -Recurse -Filter glslang.exe | Select-Object -First 1).DirectoryName >> $env:GITHUB_PATH
+          Expand-Archive $zip "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\glslang"
+          (Get-ChildItem "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\glslang" -Recurse -Filter glslang.exe | Select-Object -First 1).DirectoryName >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_PATH
 
       - name: Configure
         run: .\src\uwp\uwp.ps1 configure
@@ -123,13 +141,17 @@ jobs:
         run: |
           .\src\uwp\uwp.ps1 package
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $out = "$env:KYTY_UWP_BUILD\uwp-package"
+          $out = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueKYTY_UWP_BUILD\uwp-package"
           $msix = Get-Item "$out\*.msix"
           $version = [regex]::Match($msix.Name, '_(\d+\.\d+\.\d+\.\d+)_x64\.msix$').Groups[1].Value
-          $zip = "$env:RUNNER_TEMP\KytyPS5-Xbox-$version.zip"
+          $zip = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\KytyPS5-Xbox-$version.zip"
           Compress-Archive -Path $msix.FullName, "$out\Dependencies" -DestinationPath $zip
-          "version=$version" >> $env:GITHUB_OUTPUT
-          "zip=$zip" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_OUTPUT
+          "zip=$zip" >> $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_OUTPUT
 
       - name: Upload package
         uses: actions/upload-artifact@v4
@@ -141,6 +163,7 @@ jobs:
       - name: Release
         if: inputs.release
         env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.package.outputs.version }}
           ZIP: ${{ steps.package.outputs.zip }}
@@ -149,7 +172,9 @@ jobs:
           WHATS_NEW: ${{ inputs.whats_new }}
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          $source = "https://github.com/$env:GITHUB_REPOSITORY/blob/$env:GITHUB_SHA"
+          $source = "https://github.com/$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_REPOSITORY/blob/$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_SHA"
           $notes = @"
           Experimental build for the **Xbox Series X|S** in Developer Mode (not the Xbox One). [Changes and known limits]($source/XBOX_CHANGES.md)
 
@@ -162,16 +187,24 @@ jobs:
           Installs over earlier builds and keeps your data.
           "@
           # What's new above it: Markdown as given when it has line breaks (from gh workflow run), else points separated by |.
-          $whats_new = "$env:WHATS_NEW".Trim()
+          $whats_new = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueWHATS_NEW".Trim()
           if ($whats_new -and -not $whats_new.Contains("`n")) {
             $whats_new = ($whats_new -split '\s*\|\s*' | Where-Object { $_ } | ForEach-Object { "- $_" }) -join "`n"
           }
           if ($whats_new) {
             $notes = "**What's new**`n$whats_new`n`n---`n`n" + $notes
           }
-          $title = "$env:TITLE".Trim()
+          $title = "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueTITLE".Trim()
           if (-not $title) {
-            $title = "KytyPS5 for Xbox $env:VERSION"
+            $title = "KytyPS5 for Xbox $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueVERSION"
           }
-          Set-Content "$env:RUNNER_TEMP\notes.md" $notes -Encoding utf8NoBOM
-          gh release create "xbox-$env:VERSION" $env:ZIP --target $env:GITHUB_SHA --title $title --notes-file "$env:RUNNER_TEMP\notes.md"
+          Set-Content "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\notes.md" $notes -Encoding utf8NoBOM
+          gh release create "xbox-$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueVERSION" $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueZIP --target $env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueGITHUB_SHA --title $title --notes-file "$env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: trueRUNNER_TEMP\notes.md"

@@ -20,7 +20,7 @@ jobs:
         with:
           version: '6.10.3'
           arch: 'win64_msvc2022_64'
-          cache: true
+          cache: false
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -35,7 +35,7 @@ jobs:
         with:
           vulkan-query-version: 1.4.304.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
-          vulkan-use-cache: true
+          vulkan-use-cache: false
 
       - name: Configure
         run: |
