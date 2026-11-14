@@ -1830,9 +1830,9 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
                 stream.hs.value = Bytecode(linked.hull);
                 stream.ds.value = Bytecode(linked.domain);
                 stream.tessellation.value = {
-                    static_cast<D3D12_TESSELLATOR_DOMAIN>(vs_input_info[0].tess.domain),
-                    static_cast<D3D12_TESSELLATOR_PARTITIONING>(vs_input_info[0].tess.partitioning),
-                    static_cast<D3D12_TESSELLATOR_OUTPUT_PRIMITIVE>(vs_input_info[0].tess.output_topology)
+                    static_cast<D3D_TESSELLATOR_DOMAIN>(vs_input_info[0].tess.domain),
+                    static_cast<D3D_TESSELLATOR_PARTITIONING>(vs_input_info[0].tess.partitioning),
+                    static_cast<D3D_TESSELLATOR_OUTPUT_PRIMITIVE>(vs_input_info[0].tess.output_topology)
                 };
         }
 	SetOutputState(stream, key);
@@ -1923,7 +1923,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	const auto  vertex_info   = state.VertexStages();
 	const auto* ps_input_info = state.ps_active ? &state.ps_input_info : nullptr;
 	const auto& vs_input_info = vertex_info.front();
-	EXIT_IF(vs_input_info[0].stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
+	EXIT_IF(vs_input_info.stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
 
 	GraphicsPrograms        programs;
 	std::array<uint64_t, 3> vertex_ids {};
@@ -1963,7 +1963,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	if (auto found = m_graphics_pipelines.find(key); found != m_graphics_pipelines.end()) {
 		return *found->second;
 	}
-	auto pipeline = CreateGraphicsPipeline(key, vertex_info, ps_input_info, programs);
+	auto pipeline = CreateGraphicsPipeline(key, vs_array, ps_input_info, programs);
 	auto [found, inserted] = m_graphics_pipelines.emplace(key, std::move(pipeline));
 	EXIT_IF(!inserted);
 	return *found->second;
