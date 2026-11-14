@@ -1963,15 +1963,6 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	if (auto found = m_graphics_pipelines.find(key); found != m_graphics_pipelines.end()) {
 		return *found->second;
 	}
-	std::array<ShaderVertexInputInfo, 3> vs_array{};
-	for (size_t i = 0; i < vertex_info.size() && i < 3; ++i) {
-	    vs_array[i] = vertex_info[i];
-	}
-	std::array<ShaderVertexInputInfo, 3> vs_array{};
-	for (size_t i = 0; i < vertex_info.size() && i < 3; ++i) {
-	    vs_array[i] = vertex_info[i];
-	}
-	auto pipeline = CreateGraphicsPipeline(key, vs_array, ps_input_info, programs);
 	auto [found, inserted] = m_graphics_pipelines.emplace(key, std::move(pipeline));
 	EXIT_IF(!inserted);
 	return *found->second;
