@@ -465,7 +465,6 @@ std::wstring GraphicsPipelineName(const Stream&                             stre
 	return name.Get(mesh ? L'M' : L'G');
 }
 
-} // namespace
 
 void RootLayout::Add(const IR::CompiledShaderInfo& program, bool program_runtime_data) {
 	push_constants = push_constants || UsesPushConstants(program);
