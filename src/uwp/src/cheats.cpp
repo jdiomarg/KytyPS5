@@ -130,7 +130,7 @@ Download Request(const std::wstring& url, uint64_t limit) {
 	return result;
 }
 
-// The files of one index (lines of name=title) for `title_id`; `invalid` counts the lines that don't fit.
+// The files of one index (lines of name=title) for 	itle_id`; `invalid` counts the lines that don't fit.
 std::vector<RemoteFile> ParseIndex(std::string_view data, const std::string& format, const std::string& title_id, size_t& invalid) {
 	std::vector<RemoteFile> files;
 	std::set<std::string>   seen;

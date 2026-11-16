@@ -32,7 +32,7 @@ namespace Libs::Graphics::DrawLog {
 	return fmt::format("0x{:x} {}x{} {} samples {} mip {} layer {}", info.data.address, info.extent.width, info.extent.height, vk::to_string(info.pixel_format), info.samples, mip, layer);
 }
 
-// A bound texture with the shader's use of it (`resource` may be null).
+// A bound texture with the shader's use of it (esource` may be null).
 [[nodiscard]] inline std::string Texture(const TextureBinding& binding, const ShaderRecompiler::IR::ImageResource* resource) {
 	const auto& info = binding.desc.info;
 	const auto& view = binding.desc.view_info;

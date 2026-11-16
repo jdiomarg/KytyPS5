@@ -149,7 +149,7 @@ uint32_t CubeLayer(EmitterState& state, uint32_t value) {
 	return result;
 }
 
-// `row` is the host y of a 1D image, inserted after x.
+// ow` is the host y of a 1D image, inserted after x.
 uint32_t CoordF32(ValueEmitContext& ctx, const IR::MemoryInfo& mem, const IR::Inst& address,
                   uint32_t first, uint32_t components, bool cube = false, uint32_t row = 0) {
 	auto&    state = ctx.state;

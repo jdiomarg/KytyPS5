@@ -156,7 +156,7 @@ public:
 	void Open(const std::filesystem::path& path, std::span<const uint8_t> header, uint64_t kept);
 	// Whether the store is open.
 	explicit operator bool() const { return !m_file.IsInvalid(); }
-	// Compresses `record` and appends it on the store thread, in call order.
+	// Compresses ecord` and appends it on the store thread, in call order.
 	void Append(std::vector<uint8_t>&& record);
 	void Post(Common::UniqueFunction<void>&& job);
 	// Runs the queued jobs and stops the thread; jobs posted later never run. Safe to call again.

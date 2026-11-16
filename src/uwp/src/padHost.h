@@ -82,7 +82,7 @@ void                          SetPlayerState(int player, const HostPadState& sta
 // follow a stick that is held still too.
 void                          StepPlayerMotion(int player);
 // A real controller's motion sensors (a DSU controller's, dsu.h): accelerometer in m/s² and gyroscope in rad/s in the pad's frame (x right,
-// y up, z toward the player), at `time` (microseconds, QueryPerformanceCounter). While they keep coming, the emulated motion stays off.
+// y up, z toward the player), at 	ime` (microseconds, QueryPerformanceCounter). While they keep coming, the emulated motion stays off.
 void                          SetPlayerMotion(int player, const std::array<float, 3>& accel, const std::array<float, 3>& gyro, uint64_t time);
 [[nodiscard]] HostPadFeedback GetPlayerFeedback(int player);
 

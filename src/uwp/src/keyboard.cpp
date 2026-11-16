@@ -176,7 +176,7 @@ void OnVisibilityChanged(bool /*visible*/, uint64_t /*generation*/) {
 	}
 }
 
-// The game's text becomes `text`: with the cursor at its end, the part from the first character that differs is erased and the new part typed,
+// The game's text becomes 	ext`: with the cursor at its end, the part from the first character that differs is erased and the new part typed,
 // as the player would. The keyboard dialog takes it at once; the game's own text field takes it, in this order, when the game next updates it.
 void SetGameText(Session session, const ImeCommon::HostSnapshot& snapshot, std::u16string_view text) {
 	const std::u16string_view old = snapshot.text;

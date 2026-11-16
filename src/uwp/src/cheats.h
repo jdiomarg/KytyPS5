@@ -43,7 +43,7 @@ struct Download {
 	std::wstring error;
 };
 
-// Reads the collection's three indexes (json.txt, mc4.txt, shn.txt) for `title_id`. Blocks: a background thread.
+// Reads the collection's three indexes (json.txt, mc4.txt, shn.txt) for 	itle_id`. Blocks: a background thread.
 [[nodiscard]] Catalog LoadCatalog(const std::string& title_id);
 // Downloads a JSON file of the collection (up to 8 MB, 30 s). Blocks: a background thread.
 [[nodiscard]] Download Fetch(const RemoteFile& file);

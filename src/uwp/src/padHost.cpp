@@ -76,7 +76,7 @@ Quat Target(const HostPadState& state) {
 	                AxisAngle(1.0f, 0.0f, 0.0f, -state.tilt_y * MAX_ANGLE));
 }
 
-// An emulated pad: its orientation, when its sensors were last sent, and whether it rests at its target (and was sent so). Until `real_until`
+// An emulated pad: its orientation, when its sensors were last sent, and whether it rests at its target (and was sent so). Until eal_until`
 // a real controller's sensors come instead (SetPlayerMotion).
 struct Motion {
 	Quat     orientation {};
@@ -98,7 +98,7 @@ void SendMotion(int player, const std::array<float, 3>& rate, uint64_t now) {
 	motion.time = now;
 }
 
-// One step of a player's emulated pad toward `target`, at most MAX_RATE for the time since the last one. The controller library turns its own
+// One step of a player's emulated pad toward 	arget`, at most MAX_RATE for the time since the last one. The controller library turns its own
 // orientation by the gyroscope's rate times the same time, so it follows the pad exactly.
 void StepMotion(int player, const Quat& target) {
 	auto&      motion = g_motions[player];

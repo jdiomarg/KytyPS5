@@ -73,7 +73,8 @@ static_assert(sizeof(Conversion) == 32);
                              const ImageInfo& info, uint32_t levels, uint64_t source_base,
                              uint64_t target_base);
 
-// The workgroups (64 invocations each) of a tiling dispatch over `num_texels`, spread over x and y.
+// The workgroups (64 invocations each) of a tiling dispatch over 
+um_texels`, spread over x and y.
 // Returns false where they need more than `max_groups_y` rows.
 [[nodiscard]] bool Groups(uint32_t num_texels, uint32_t max_groups_x, uint32_t max_groups_y,
                           uint32_t* groups_x, uint32_t* groups_y);

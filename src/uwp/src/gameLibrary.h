@@ -26,7 +26,7 @@ std::vector<GameEntry> ScanGames();
 // The games of the last scan.
 [[nodiscard]] std::vector<GameEntry> LoadGameLibrary();
 
-// The game with `title_id`, from the last scan or, if it isn't there, a new one.
+// The game with 	itle_id`, from the last scan or, if it isn't there, a new one.
 [[nodiscard]] std::optional<GameEntry> FindGame(const std::string& title_id);
 
 } // namespace Kyty::Uwp

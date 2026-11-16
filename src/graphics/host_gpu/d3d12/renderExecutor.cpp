@@ -39,7 +39,7 @@ std::string DescribeDispatch(const PipelineCache::Pipeline& pipeline, const Prep
 	return text;
 }
 
-// A raw view of `binding`: a UAV, or an SRV used in `read_state` for buffers the shader only
+// A raw view of `binding`: a UAV, or an SRV used in ead_state` for buffers the shader only
 // reads. A binding without a buffer (a guest buffer of no memory, which upstream binds as a Vulkan
 // null descriptor) gets a null view: it reads zeros and drops writes.
 void WriteRawView(ID3D12Device* device, const BufferBinding& binding,

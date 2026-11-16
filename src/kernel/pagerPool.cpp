@@ -80,7 +80,8 @@ void Remove(uint32_t slot, PagerCounters& counters) {
 	entry.older = None;
 }
 
-// Room for `need` granules: the pool grows up to its size, then its oldest windows go.
+// Room for 
+eed` granules: the pool grows up to its size, then its oldest windows go.
 bool Reserve(uint32_t need, PagerCounters& counters) {
 	while (g_pool.free.size() < need) {
 		if (g_pool.chunks.size() < g_pool.max_chunks) {

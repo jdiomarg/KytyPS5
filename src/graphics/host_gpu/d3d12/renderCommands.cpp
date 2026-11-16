@@ -70,7 +70,7 @@ bool IsTriangleTopology(vk::PrimitiveTopology topology) {
 	       topology == vk::PrimitiveTopology::eTriangleFan;
 }
 
-// D3D12 has no triangle fans: each fan of `vertices` (split at `restart_index` when `restart`,
+// D3D12 has no triangle fans: each fan of `vertices` (split at estart_index` when estart`,
 // and after every `fan_length` vertices when nonzero) becomes a triangle list. Fan triangle i is
 // written as (v[i+1], v[i+2], v[0]): Vulkan's first-vertex convention makes v[i+1] the
 // provoking vertex of fan triangles, and the rotation keeps the winding.
