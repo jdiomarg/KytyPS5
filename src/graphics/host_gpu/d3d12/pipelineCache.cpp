@@ -919,7 +919,6 @@ private:
 	size_t                   m_offset = 0;
 };
 
-} // namespace
 
 ID3D12RootSignature* PipelineCache::RootSignatureFromBlob(uint64_t hash, std::span<const uint8_t> blob) {
 	{
