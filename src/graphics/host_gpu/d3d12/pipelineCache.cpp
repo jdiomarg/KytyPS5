@@ -1534,7 +1534,7 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 		Log::WriteToConsoleAndLog(fmt::format("compute pipeline {} (guest shader 0x{:016x}) saved to {}\n", m_pipeline_count, input_info.stage.module->info.shader_hash,
 		                                      D3D12::SaveShaderDump(fmt::format("cs_{}_{:016x}", m_pipeline_count, input_info.stage.module->info.shader_hash), dxil, {})));
 	}
-	pipeline->layout.Add(input_infovertex_info[0].stage.module->info, shader.dxil.requires_runtime_data);
+	pipeline->layout.Add(input_info.stage.module->info, shader.dxil.requires_runtime_data);
 	pipeline->root_signature = GetRootSignature(pipeline->layout);
 	if (!shader.dxil.IsValid() || pipeline->root_signature == nullptr) {
 		found->second = std::move(pipeline);
@@ -1554,7 +1554,7 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 	return *found->second;
 }
 
-PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const std::array<ShaderVertexInputInfo, 3>& vertex_info,
+PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(std::span<const ShaderVertexInputInfo> vertex_info,
                                                                const CompiledProgram&       program) {
 	const bool tess = vertex_info[0].logical_stage == ShaderType::Local;
 	// (Translate locks the cache itself.)
@@ -1570,7 +1570,7 @@ PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const std::array<
 	auto pipeline = std::make_unique<Pipeline>();
 	NameNewPipeline(*pipeline, fmt::format("ms as cs {:x}", program.id));
 	pipeline->trace.dxil = {&shader.dxil};
-	pipeline->layout.Add(vertex_infovertex_info[0].stage.module->info, shader.dxil.requires_runtime_data);
+	pipeline->layout.Add(vertex_info[0].stage.module->info, shader.dxil.requires_runtime_data);
 	pipeline->layout.mesh_scratch = RootLayout::MeshScratch::Write;
 	pipeline->root_signature      = GetRootSignature(pipeline->layout);
 	if (!shader.dxil.IsValid() || pipeline->root_signature == nullptr) {
@@ -1630,7 +1630,7 @@ static bool UsesBallot(std::span<const uint32_t> spirv) {
 const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms& programs,
                                                          bool rect_list, bool sample_rate_shading,
                                                          bool                         clip_halfz,
-                                                         const std::array<ShaderVertexInputInfo, 3>& vertex_info,
+                                                         std::span<const ShaderVertexInputInfo> vertex_info,
                                                          const ShaderPixelInputInfo* ps_input_info) {
 	const auto& vertex = programs.vertex[0];
 	const auto& pixel  = programs.pixel;
@@ -1690,7 +1690,7 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 }
 
 std::unique_ptr<PipelineCache::Pipeline>
-PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<ShaderVertexInputInfo, 3>& vs_input_info,
+PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, std::span<const ShaderVertexInputInfo> vs_input_info,
                                       const ShaderPixelInputInfo* ps_input_info,
                                       const GraphicsPrograms&     programs) {
 	const bool tess = vs_input_info[0].logical_stage == ShaderType::Local;
@@ -1943,7 +1943,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	if (auto found = m_graphics_pipelines.find(key); found != m_graphics_pipelines.end()) {
 		return *found->second;
 	}
-	auto pipeline = CreateGraphicsPipeline(key, vs_input_info, ps_input_info, programs);
+	auto pipeline = CreateGraphicsPipeline(key, vertex_info, ps_input_info, programs);
 	auto [found, inserted] = m_graphics_pipelines.emplace(key, std::move(pipeline));
 	EXIT_IF(!inserted);
 	return *found->second;

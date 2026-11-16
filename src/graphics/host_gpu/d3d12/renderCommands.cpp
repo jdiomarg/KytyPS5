@@ -825,8 +825,8 @@ void RenderExecutor::ExecutePreparedDraw(CommandBuffer& buffer, const DrawCallIn
 	}
 	const PipelineCache::Pipeline* mesh_compute = nullptr;
 	if (emulated_mesh) {
-		mesh_compute = &m_context.GetPipelineCache().GetMeshComputePipeline(vs_input_info,
-		                                                                    *vs_input_info.stage.module);
+				mesh_compute = &m_context.GetPipelineCache().GetMeshComputePipeline(state.VertexStages(),
+		                                                                   *vs_input_info.stage.module);
 		if (mesh_compute->pipeline == nullptr) {
 			log_skip("the compute pipeline of the mesh program could not be made");
 			CountSkippedDraw("pipeline failed");
