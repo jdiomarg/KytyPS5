@@ -7,13 +7,13 @@ This fork runs [KytyPS5](https://github.com/KytyPS5/KytyPS5), a free and open-so
 > not distribute games or copyrighted system software. Use only game files that you have obtained
 > legally.
 
-What the Xbox version adds:
+## What the Xbox version adds
 
-- **An app made for the controller.** A game library with covers, game options, settings, trophies, a controller guide and a statistics overlay, laid out like the Xbox's own screens.
-- **A Direct3D 12 renderer** next to upstream's Vulkan renderer. Shaders are translated with Mesa's `spirv_to_dxil`.
-- **Room for big games on the console.** Game memory is committed as it is used, a swap file keeps games within the Series X's app memory limit, and texture options trade detail for memory.
-- **Up to four players.** The DualSense's touchpad, motion sensors, adaptive triggers, haptic feedback, speaker and microphone are mapped to the Xbox controller and its headset.
-- **Games on a USB drive.** Game folders and `.zar` archives play from a drive, and saves, patches and trophies can live there too.
+- **An app made for the controller.** A game library with covers, game options, settings, trophies, a controller guide, and a statistics overlay, laid out like the Xbox's own screens.
+- **A Direct3D 12 renderer** alongside upstream's Vulkan renderer. Shaders are translated with Mesa's `spirv_to_dxil`, with async pipeline compilation to reduce stutter.
+- **Room for big games on the console.** Game memory is committed lazily as it is used, a compressed swap file keeps games within the Series X's app memory limit, and texture options trade detail for memory.
+- **Up to four players.** The DualSense's touchpad, motion sensors, adaptive triggers, haptic feedback, speaker, and microphone are mapped to the Xbox controller and its headset.
+- **Games on a USB drive.** Game folders and `.zar` archives play from a drive, and saves, patches, and trophies can live there too.
 
 <p align="center">
   <strong>Library</strong><br>
@@ -53,15 +53,15 @@ What the Xbox version adds:
   </tr>
 </table>
 
-The Xbox version is experimental. Not every game that runs on a PC runs on the Xbox, and draws that the Series X cannot do, such as tessellation, are skipped.
+The Xbox version is experimental. Not every game that runs on a PC runs on the Xbox yet. However, advanced rendering features like tessellation and async pipeline pre-warming are actively being integrated to improve compatibility and smoothness.
 
-- [Releases](https://github.com/Cosmo/KytyPS5/releases) has builds for the Xbox Series X|S in Developer Mode, with the install steps.
+- [Releases](https://github.com/Cosmo/KytyPS5/releases) has builds for the Xbox Series X|S in Developer Mode, with install steps.
 - [XBOX_CHANGES.md](XBOX_CHANGES.md) lists every change against upstream, one commit per topic, and the known limits on the Series X.
 - [src/uwp/README.md](src/uwp/README.md) explains how to build and install the app and how to set up your games.
 
 ## KytyPS5
 
-For everything else, such as the desktop builds, running on a PC, the project's status and contributing, see [KytyPS5's README](https://github.com/KytyPS5/KytyPS5#readme).
+For everything else, such as the desktop builds, running on a PC, the project's status, and contributing, see [KytyPS5's README](https://github.com/KytyPS5/KytyPS5#readme).
 
 ## License
 
