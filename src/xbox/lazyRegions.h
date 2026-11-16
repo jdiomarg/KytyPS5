@@ -435,7 +435,7 @@ public:
 
 	// Windows the pager never sweeps: the stacks of threads and fibers. A no-access page under the stack pointer cannot be recovered: Windows
 	// pushes the exception frame onto that very stack, fails, and ends the process (a thread that comes back from a wait with its stack swept dies
-	// on its first et`). Ranges are in windows and merge when they touch. Under the caller's exclusive lock, like everything that changes.
+	// on its first `ret`). Ranges are in windows and merge when they touch. Under the caller's exclusive lock, like everything that changes.
 	void Pin(uint64_t address, uint64_t size) {
 		if (size == 0) {
 			return;
@@ -787,7 +787,7 @@ public:
 	}
 	[[nodiscard]] size_t EvictedCount() const { return m_evicted.size(); }
 	// The committed windows by what the pager may do with them, for its report (under the caller's lock). A page watcher's protection keeps a
-	// window in memory: `write_watched` has read-only pages, ead_watched` has no-access pages too.
+	// window in memory: `write_watched` has read-only pages, `read_watched` has no-access pages too.
 	struct Census {
 		uint64_t free = 0, write_watched = 0, read_watched = 0, pinned = 0, partial = 0;
 	};

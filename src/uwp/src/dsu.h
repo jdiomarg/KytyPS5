@@ -71,7 +71,7 @@ void SetPaused(bool paused);
 // the white until the game's colour or, after 5 s, its own).
 void Identify(const std::string& server, int slot);
 
-// Audio for a player's controllers, from the audio threads: 16-bit samples at ate` (the guest's ports play 48000 Hz), the speaker's mono,
+// Audio for a player's controllers, from the audio threads: 16-bit samples at `rate` (the guest's ports play 48000 Hz), the speaker's mono,
 // the haptics' stereo (left and right actuator). False when none of the player's controllers plays it: the caller plays it elsewhere or not
 // at all.
 bool SendSpeaker(int player, const int16_t* samples, uint32_t frames, uint32_t rate);

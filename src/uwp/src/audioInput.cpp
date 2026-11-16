@@ -98,7 +98,7 @@ public:
 	// Takes the network DualSense's microphone until it stops or the stream closes.
 	void CaptureNetwork();
 	void Push(const BYTE* data, uint32_t bytes, bool silent);
-	// The network DualSense's 16-bit mono samples at ate`, into the stream's format (linear interpolation; the client's thread only).
+	// The network DualSense's 16-bit mono samples at `rate`, into the stream's format (linear interpolation; the client's thread only).
 	void PushNetwork(const int16_t* samples, uint32_t frames, uint32_t rate);
 
 private:

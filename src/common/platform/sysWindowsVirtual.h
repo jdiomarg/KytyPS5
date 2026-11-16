@@ -50,8 +50,7 @@ bool                   FreeHost(uint64_t address);
 
 // Called first for every access violation: makes a page that is meant to be writable and
 // executable accessible for the faulting access. False when the fault is not such a page.
-// 
-ative_context` (the faulting thread's CONTEXT): an instruction that writes into the page it runs from is made by the store
+// `native_context` (the faulting thread's CONTEXT): an instruction that writes into the page it runs from is made by the store
 // emulator (SetStoreEmulator), as switching that page could never let it finish.
 [[nodiscard]] bool HandleWriteExecuteFault(uint64_t address, bool execute, void* native_context = nullptr);
 

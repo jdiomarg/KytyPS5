@@ -56,7 +56,7 @@ struct Decoded {
 	std::string          stats;      // per channel: minimum, maximum and mean of the target itself (all pixels)
 };
 
-// ows` are tight rows of ow_bytes` bytes.
+// `rows` are tight rows of `row_bytes` bytes.
 // `stats_step` > 1 takes the statistics from every stats_step-th texel in both directions only (the picture then is as sparse).
 [[nodiscard]] bool Decode(PixelKind kind, const uint8_t* rows, uint32_t width, uint32_t height, uint32_t row_bytes, bool srgb_encoded, Decoded& out, uint32_t stats_step = 1);
 [[nodiscard]] bool WritePng(const std::filesystem::path& file, uint32_t width, uint32_t height, const uint8_t* rgba);

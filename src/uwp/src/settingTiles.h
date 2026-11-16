@@ -29,7 +29,7 @@ void Explain(winrt::Windows::UI::Xaml::Controls::Control const& control, winrt::
 void Explain(winrt::Windows::UI::Xaml::Controls::Control const& control, winrt::Windows::UI::Xaml::Controls::StackPanel const& explanation,
              std::wstring title, std::vector<std::wstring> facts, Paragraphs paragraphs);
 
-// Puts the focus on the first control in oot` that takes it, or with 	ag` on the one with that tag; it searches panels, borders and
+// Puts the focus on the first control in `root` that takes it, or with `tag` on the one with that tag; it searches panels, borders and
 // scroll viewers in order. Whether it found one.
 bool FocusFirst(winrt::Windows::UI::Xaml::DependencyObject const& root, winrt::hstring const& tag = {});
 

@@ -177,7 +177,7 @@ public:
 private:
 	EmulatorHost() = default;
 
-	// Runs 	ask` on the UI thread and waits for it.
+	// Runs `task` on the UI thread and waits for it.
 	template <typename Task>
 	void RunOnUiThread(Task&& task);
 

@@ -1638,9 +1638,6 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
         const bool  tess   = vertex_info[0].logical_stage == ShaderType::Local;
         const uint64_t hs_id = tess ? programs.vertex[1].id : 0;
         const uint64_t ds_id = tess ? programs.vertex[2].id : 0;
-        const bool  tess   = vertex_info[0].logical_stage == ShaderType::Local;
-        const uint64_t hs_id = tess ? programs.vertex[1].id : 0;
-        const uint64_t ds_id = tess ? programs.vertex[2].id : 0;
 	auto [found, inserted] =
 	    m_linked.try_emplace(
             LinkKey {vertex.id, ps ? pixel.id : 0, hs_id, ds_id, rect_list, sample_rate_shading, clip_halfz});
@@ -1650,9 +1647,9 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 	KYTY_PROFILER_BLOCK("D3D12 link shaders");
 	const CompileStepTimer step_timer(Common::DebugCounters::Counter::PipelineCreateNs);
 	using Kind = D3D12::LinkedStage::Kind;
-	const boolconst bool mesh = vertex_info[0].stage.module->info.stage == ShaderType::Mesh;
+	const bool mesh = vertex_info[0].stage.module->info.stage == ShaderType::Mesh;
 	// A mesh program run as a compute shader is drawn by its vertex stage, which reads its records.
-	const bool emulated = mesh && vertex_info.mesh.compute_emulation;
+	const bool emulated = mesh && vertex_info[0].mesh.compute_emulation;
 	EXIT_IF(emulated && vertex.mesh_fetch == nullptr);
 	// The vertex stage flips Y/Z; the rect-list corners a GS adds are affine combinations of
 	// flipped positions, so they are flipped as well.

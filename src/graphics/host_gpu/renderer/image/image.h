@@ -76,10 +76,10 @@ public:
 	             const ImageSubresourceRange& destination_range);
 	void CopyImageWithBuffer(Image& source, Buffer& buffer, TileManager& tiler);
 	void CopyMip(Image& source, uint32_t mip, uint32_t layer);
-	// Copies egions` of `source`, which lie within ange` of both images.
+	// Copies `regions` of `source`, which lie within `range` of both images.
 	void CopySubresources(Image& source, const ImageSubresourceRange& range,
 	                      std::span<const vk::ImageCopy> regions);
-	// Clears ange`; a `format` other than the image format clears through an aliasing view.
+	// Clears `range`; a `format` other than the image format clears through an aliasing view.
 	void Clear(CommandBuffer& command, vk::Format format, const vk::ImageSubresourceRange& range,
 	           const vk::ClearValue& clear, bool full_image);
 #if !defined(KYTY_GPU_BACKEND_D3D12)
@@ -90,7 +90,7 @@ public:
 #endif
 
 #if defined(KYTY_GPU_BACKEND_D3D12)
-	// Records the transition of ange` (all subresources when empty) to `state`, a
+	// Records the transition of `range` (all subresources when empty) to `state`, a
 	// D3D12_RESOURCE_STATES value, on the resource `view` reads (the current contents when empty).
 	// A resource of another format family is first brought up to date; a write state makes the
 	// used resource the only current one.
@@ -106,10 +106,10 @@ public:
 	// A read-only view lets the image be sampled while it is the depth target.
 	[[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(ImageViewHandle view,
 	                                                           bool            read_only = false);
-	// Frame dump (debugging): the first mip of the first layer of a 2D color image as tight rows of ow_bytes` bytes (the GPU is flushed and waited for). False when it cannot be read.
+	// Frame dump (debugging): the first mip of the first layer of a 2D color image as tight rows of `row_bytes` bytes (the GPU is flushed and waited for). False when it cannot be read.
 	[[nodiscard]] bool ReadbackColor(std::vector<uint8_t>& data, uint32_t& width, uint32_t& height, uint32_t& row_bytes);
-	// The depth values of `depth` (D32, at `depth_range`'s first level and layer) into this R32 float image (at ange`'s first level
-	// and layer), within ect`: the copy of a draw with copy_depth_to_color.
+	// The depth values of `depth` (D32, at `depth_range`'s first level and layer) into this R32 float image (at `range`'s first level
+	// and layer), within `rect`: the copy of a draw with copy_depth_to_color.
 	void CopyDepthToColor(CommandBuffer& command, Image& depth, const ImageSubresourceRange& depth_range,
 	                      const ImageSubresourceRange& range, const D3D12_RECT& rect);
 	// Whether layer `layer` of mip `level` of this color image can be rendered to through a `format` view (ClearSelected).

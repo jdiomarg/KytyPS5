@@ -73,7 +73,7 @@ public:
 private:
 	class Ring {
 	public:
-		// Per-use descriptors are allocated after the first eserved` entries.
+		// Per-use descriptors are allocated after the first `reserved` entries.
 		Ring(GraphicContext& graphics, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t capacity,
 		     uint32_t reserved = 0);
 		~Ring();

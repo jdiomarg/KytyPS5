@@ -263,7 +263,7 @@ std::atomic_bool            g_paused {false};
 std::atomic<MicrophoneSink> g_microphone_sink {nullptr};
 std::atomic_uint64_t        g_microphone_received {0};
 
-// A slot of a server: the controller in it (none while eceived` is 0), the player it plays for, and its feedback and audio streams.
+// A slot of a server: the controller in it (none while `received` is 0), the player it plays for, and its feedback and audio streams.
 struct Slot {
 	PadData    data;
 	uint64_t   received = 0; // when the newest data came (NowMicroseconds)

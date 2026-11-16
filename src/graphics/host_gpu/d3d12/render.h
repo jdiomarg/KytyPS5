@@ -171,7 +171,7 @@ private:
 	                                    const DrawEmitInfo& emit, DrawRenderState& state);
 	[[nodiscard]] bool ResolveColorTargets(CommandBuffer& buffer);
 	[[nodiscard]] bool ConsumeMetadataColorOperation(CommandBuffer& buffer);
-	// ead_only_depth` binds the depth target read-only, for a draw that also samples it.
+	// `read_only_depth` binds the depth target read-only, for a draw that also samples it.
 	[[nodiscard]] RenderTargets AcquireRenderTargets(CommandBuffer& buffer, RenderColorInfo* colors,
 	                                                 uint32_t color_count, RenderDepthInfo& depth,
 	                                                 bool read_only_depth);

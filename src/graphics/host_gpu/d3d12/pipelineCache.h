@@ -210,7 +210,7 @@ private:
 	const Shader*         Translate(const CompiledProgram& program, ShaderType stage);
 	const LinkedPrograms& Link(const GraphicsPrograms& programs, bool rect_list,
 	                           bool sample_rate_shading, bool clip_halfz,
-	                           const ShaderVertexInputInfo& vertex_info,
+	                           const std::array<ShaderVertexInputInfo, 3>& vertex_info,
 	                           const ShaderPixelInputInfo*  ps_input_info);
 	ID3D12RootSignature*  GetRootSignature(const RootLayout& layout);
 	std::unique_ptr<Pipeline> CreateGraphicsPipeline(const GraphicsKey& key,
@@ -221,8 +221,7 @@ private:
 	// depth-stencil and the attachment formats.
 	template <typename Stream>
 	void SetOutputState(Stream& stream, const GraphicsKey& key) const;
-	// Loads the pipeline 
-ame` names from the pipeline library, or creates and stores it.
+	// Loads the pipeline `name` names from the pipeline library, or creates and stores it.
 	ID3D12PipelineState* LoadOrCreate(const std::wstring&                    name,
 	                                  const D3D12_PIPELINE_STATE_STREAM_DESC& desc,
 	                                  std::initializer_list<const D3D12::DxilShader*> shaders);
@@ -260,8 +259,7 @@ ame` names from the pipeline library, or creates and stores it.
 	void                 BuildBeforeStart(uint32_t workers);
 	// What the pager leaves the game: the app's limit without what the others take and the pager's headroom (UINT64_MAX without a limit).
 	[[nodiscard]] uint64_t PrewarmGameRoom() const;
-	// The prewarmed pipeline 
-ame`, waiting while a thread builds it; nullptr when there is none (or it is still queued, which leaves it
+	// The prewarmed pipeline `name`, waiting while a thread builds it; nullptr when there is none (or it is still queued, which leaves it
 	// to the caller).
 	ID3D12PipelineState* TakePrewarmed(const std::wstring& name);
 
