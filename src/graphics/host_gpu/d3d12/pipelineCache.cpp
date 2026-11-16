@@ -306,10 +306,10 @@ struct alignas(void*) StreamSubobject {
 struct GraphicsPipelineStream {
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, ID3D12RootSignature*> root;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS, D3D12_SHADER_BYTECODE>          vs;
+    StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, D3D12_SHADER_BYTECODE>          hs;
+    StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, D3D12_SHADER_BYTECODE>          ds;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS, D3D12_SHADER_BYTECODE>          gs;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS, D3D12_SHADER_BYTECODE>          ps;
-	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS, D3D12_SHADER_BYTECODE>          hs;
-	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS, D3D12_SHADER_BYTECODE>          ds;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND, D3D12_BLEND_DESC>            blend;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK, UINT> sample_mask;
 	StreamSubobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER, D3D12_RASTERIZER_DESC>
@@ -383,8 +383,6 @@ public:
 private:
 	std::vector<uint64_t> m_parts;
 };
-
-        }
 
 template <typename Stream>
 std::wstring GraphicsPipelineName(const Stream&                             stream,
@@ -465,6 +463,7 @@ std::wstring GraphicsPipelineName(const Stream&                             stre
 	return name.Get(mesh ? L'M' : L'G');
 }
 
+} // namespace
 
 void RootLayout::Add(const IR::CompiledShaderInfo& program, bool program_runtime_data) {
 	push_constants = push_constants || UsesPushConstants(program);
@@ -919,6 +918,7 @@ private:
 	size_t                   m_offset = 0;
 };
 
+} // namespace
 
 ID3D12RootSignature* PipelineCache::RootSignatureFromBlob(uint64_t hash, std::span<const uint8_t> blob) {
 	{
@@ -1554,7 +1554,7 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 	return *found->second;
 }
 
-PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const ShaderVertexInputInfo& vertex_info,
+PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const std::array<ShaderVertexInputInfo, 3>& vertex_info,
                                                                const CompiledProgram&       program) {
 	// (Translate locks the cache itself.)
 	const auto* shader_ptr = Translate(program, ShaderType::Compute);
@@ -1633,12 +1633,12 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
                                                          const ShaderPixelInputInfo* ps_input_info) {
 	const auto& vertex = programs.vertex[0];
 	const auto& pixel  = programs.pixel;
-        const bool  ps     = ps_input_info != nullptr;
-        const bool     tess  = vertex_info[0].logical_stage == ShaderType::Local;
+	const bool  ps     = ps_input_info != nullptr;
+        const bool  tess   = vertex_info[0].logical_stage == ShaderType::Local;
         const uint64_t hs_id = tess ? programs.vertex[1].id : 0;
         const uint64_t ds_id = tess ? programs.vertex[2].id : 0;
-        auto [found, inserted] =
-            m_linked.try_emplace(
+	auto [found, inserted] =
+	    m_linked.try_emplace(
             LinkKey {vertex.id, ps ? pixel.id : 0, hs_id, ds_id, rect_list, sample_rate_shading, clip_halfz});
 	if (!inserted) {
 		return found->second;
@@ -1646,47 +1646,36 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 	KYTY_PROFILER_BLOCK("D3D12 link shaders");
 	const CompileStepTimer step_timer(Common::DebugCounters::Counter::PipelineCreateNs);
 	using Kind = D3D12::LinkedStage::Kind;
-	const bool mesh = vertex_info[0].stage.module->info.stage == ShaderType::Mesh;
+	const bool mesh = vertex_info.stage.module->info.stage == ShaderType::Mesh;
 	// A mesh program run as a compute shader is drawn by its vertex stage, which reads its records.
-	const bool emulated = mesh && vertex_info[0].mesh.compute_emulation;
+	const bool emulated = mesh && vertex_info.mesh.compute_emulation;
 	EXIT_IF(emulated && vertex.mesh_fetch == nullptr);
 	// The vertex stage flips Y/Z; the rect-list corners a GS adds are affine combinations of
 	// flipped positions, so they are flipped as well.
-        std::vector<D3D12::LinkedStage> stages {
-            {emulated ? *vertex.mesh_fetch : *vertex.spirv, mesh && !emulated ? Kind::Mesh : Kind::Vertex,
-             !tess, false, tess ? false : clip_halfz}};
-        if (tess) {
-                stages.push_back({*programs.vertex[1].spirv, Kind::Hull, false, false, false});
-                stages.push_back({*programs.vertex[2].spirv, Kind::Domain, true, false, clip_halfz});
-        }
+	std::vector<D3D12::LinkedStage> stages {
+	    {emulated ? *vertex.mesh_fetch : *vertex.spirv, mesh && !emulated ? Kind::Mesh : Kind::Vertex,
+	     true, false, clip_halfz}};
 	std::vector<uint32_t>           geometry;
 	if (rect_list) {
 		const auto parameters = ps_input_info != nullptr
 		                            ? RectListParameters(*ps_input_info, ps_input_info->stage.module->info)
 		                            : std::vector<RectListParameter> {};
-		geometry = BuildRectListGeometryShader(parameters, vertex_info[0].stage.module->info.param_export_mask);
+		geometry = BuildRectListGeometryShader(parameters, vertex_info.stage.module->info.param_export_mask);
 		stages.push_back({geometry, Kind::Geometry});
 	}
 	if (ps) {
 		stages.push_back({*pixel.spirv, Kind::Pixel, false, sample_rate_shading});
 	}
-        auto& linked  = found->second;
-        auto  dxil    = m_compiler.CompileLinked(stages,
-                                                 vertex.id ^ (pixel.id * 31) ^ (hs_id * 37) ^ (ds_id * 41),
-                                                 &linked.from_cache);
-        m_new_shaders += linked.from_cache ? 0 : dxil.size();
-        size_t dxil_idx = 0;
-        linked.vertex = std::move(dxil[dxil_idx++]);
-        if (tess) {
-                linked.hull   = std::move(dxil[dxil_idx++]);
-                linked.domain = std::move(dxil[dxil_idx++]);
-        }
-        if (rect_list) {
-                linked.geometry = std::move(dxil[dxil_idx++]);
-        }
-        if (ps) {
-                linked.pixel = std::move(dxil[dxil_idx++]);
-        }
+	auto& linked  = found->second;
+	auto  dxil    = m_compiler.CompileLinked(stages, vertex.id ^ (pixel.id * 31), &linked.from_cache);
+	m_new_shaders += linked.from_cache ? 0 : dxil.size();
+	linked.vertex = std::move(dxil[0]);
+	if (rect_list) {
+		linked.geometry = std::move(dxil[1]);
+	}
+	if (ps) {
+		linked.pixel = std::move(dxil.back());
+	}
 	if (ps && !Config::ShaderOverrideFolder().empty()) {
 		const auto     folder = Config::ShaderOverrideFolder();
 		const auto     size   = pixel.spirv->size() * sizeof(uint32_t);
@@ -1710,8 +1699,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	const bool  emulated  = mesh && vs_input_info[0].mesh.compute_emulation;
 	const bool  native_mesh = mesh && !emulated;
 	// Mesh programs expand rect lists themselves.
-	const bool  tess      = vs_input_info[0].logical_stage == ShaderType::Local;
-	const bool  rect_list = !mesh && !tess && params.topology == vk::PrimitiveTopology::ePatchList;
+	const bool  rect_list = !mesh && params.topology == vk::PrimitiveTopology::ePatchList;
 	const auto& linked = Link(programs, rect_list, params.sample_shading_enable,
 	                          params.negative_one_to_one, vs_input_info, ps_input_info);
 
@@ -1722,10 +1710,6 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	                                             programs.vertex[0].id, programs.pixel.id)
 	                               : fmt::format("{} {:x}", mesh ? "ms" : "vs", programs.vertex[0].id));
 	pipeline->trace.dxil  = {&linked.vertex};
-	if (tess) {
-	        pipeline->trace.dxil.push_back(&linked.hull);
-	        pipeline->trace.dxil.push_back(&linked.domain);
-	}
 	pipeline->trace.spirv = {emulated ? programs.vertex[0].mesh_fetch : programs.vertex[0].spirv};
 	if (linked.watched) {
 		// the watchdog (gpu_hang_exit_seconds) logs how many draws of this pipeline finished
@@ -1762,7 +1746,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	} else {
 		pipeline->layout.Add(vs_input_info[0].stage.module->info,
 		                     linked.vertex.requires_runtime_data ||
-		                         linked.geometry.requires_runtime_data || (tess && (linked.hull.requires_runtime_data || linked.domain.requires_runtime_data)));
+		                         linked.geometry.requires_runtime_data);
 	}
 	if (ps_input_info != nullptr) {
 		pipeline->layout.Add(ps_input_info->stage.module->info, linked.pixel.requires_runtime_data);
@@ -1770,7 +1754,7 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	// The vertex stage reads the user clip planes from the push constants (PushData::UserClipPlaneDword).
 	pipeline->layout.push_constants = pipeline->layout.push_constants || vs_input_info[0].user_clip_planes != 0;
 	pipeline->root_signature = GetRootSignature(pipeline->layout);
-	if (pipeline->root_signature == nullptr || !linked.vertex.IsValid() || (ps_input_info != nullptr && !linked.pixel.IsValid()) || (rect_list && !linked.geometry.IsValid()) || (tess && (!linked.hull.IsValid() || !linked.domain.IsValid()))) {
+	if (pipeline->root_signature == nullptr || !linked.vertex.IsValid() || (ps_input_info != nullptr && !linked.pixel.IsValid()) || (rect_list && !linked.geometry.IsValid())) {
 		return pipeline; // reported where it failed; the draws that need it are skipped
 	}
 
@@ -1823,12 +1807,12 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 	GraphicsPipelineStream stream {};
 	stream.root.value = pipeline->root_signature;
 	stream.vs.value   = Bytecode(linked.vertex);
-	stream.gs.value   = Bytecode(linked.geometry);
-	stream.ps.value   = Bytecode(linked.pixel);
         if (tess) {
                 stream.hs.value = Bytecode(linked.hull);
                 stream.ds.value = Bytecode(linked.domain);
         }
+	stream.gs.value   = Bytecode(linked.geometry);
+	stream.ps.value   = Bytecode(linked.pixel);
 	SetOutputState(stream, key);
 	stream.input_layout.value = {elements.data(), static_cast<UINT>(elements.size())};
 	stream.strip_cut.value    = static_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>(key.strip_cut);
@@ -1836,15 +1820,12 @@ PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<S
 
 	const auto loaded_before = m_loaded_pipelines;
 	pipeline->pipeline = LoadOrCreate(GraphicsPipelineName(stream, elements, root_layout_hash),
-	                                  {sizeof(stream), &stream}, {&linked.vertex, &linked.geometry, &linked.hull, &linked.domain, &linked.pixel});
+	                                  {sizeof(stream), &stream}, {&linked.vertex, &linked.geometry, &linked.pixel});
 	CountNewPipeline(loaded_before, linked.from_cache);
 	return pipeline;
 }
 
-        }
-
 template <typename Stream>
-
 void PipelineCache::SetOutputState(Stream& stream, const GraphicsKey& key) const {
 	const auto& rendering = key.state.rendering;
 	const auto& params    = key.state.static_params;
@@ -1920,7 +1901,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	const auto  vertex_info   = state.VertexStages();
 	const auto* ps_input_info = state.ps_active ? &state.ps_input_info : nullptr;
 	const auto& vs_input_info = vertex_info.front();
-	EXIT_IF(vs_input_info.stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
+	EXIT_IF(vs_input_info[0].stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
 
 	GraphicsPrograms        programs;
 	std::array<uint64_t, 3> vertex_ids {};
@@ -1960,6 +1941,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	if (auto found = m_graphics_pipelines.find(key); found != m_graphics_pipelines.end()) {
 		return *found->second;
 	}
+	auto pipeline = CreateGraphicsPipeline(key, vs_input_info, ps_input_info, programs);
 	auto [found, inserted] = m_graphics_pipelines.emplace(key, std::move(pipeline));
 	EXIT_IF(!inserted);
 	return *found->second;
