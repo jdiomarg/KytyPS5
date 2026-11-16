@@ -198,8 +198,6 @@ private:
 		D3D12::DxilShader vertex;
 		D3D12::DxilShader hull;
 		D3D12::DxilShader domain;
-		D3D12::DxilShader hull;
-                D3D12::DxilShader domain;
                 D3D12::DxilShader geometry;
 		D3D12::DxilShader pixel;
 		bool              from_cache = false; // translated by an earlier run
