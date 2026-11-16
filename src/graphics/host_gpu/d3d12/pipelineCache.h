@@ -139,7 +139,7 @@ public:
 	// The compute pipeline of a mesh program that runs as a compute shader (the vertex program's
 	// ShaderVertexInputInfo::mesh.compute_emulation); its draw uses GetGraphicsPipeline with the
 	// vertex stage that reads what it wrote.
-	Pipeline&     GetMeshComputePipeline(const ShaderVertexInputInfo& vertex_info,
+	Pipeline&     GetMeshComputePipeline(const std::array<ShaderVertexInputInfo, 3>& vertex_info,
 	                                     const CompiledProgram&       program);
 	// The faces a pipeline draws: as the guest culls them, or only the front or back faces (a draw whose faces have different
 	// stencil references or masks is drawn once per face).
@@ -213,8 +213,7 @@ private:
 	                           const ShaderVertexInputInfo& vertex_info,
 	                           const ShaderPixelInputInfo*  ps_input_info);
 	ID3D12RootSignature*  GetRootSignature(const RootLayout& layout);
-	std::unique_ptr<Pipeline> CreateGraphicsPipeline(const GraphicsKey& key,
-	                                                 const ShaderVertexInputInfo& vs_input_info,
+	std::unique_ptr<Pipeline> CreateGraphicsPipeline(const GraphicsKey& key,`n                                        const std::array<ShaderVertexInputInfo, 3>& vs_input_info,
 	                                                 const ShaderPixelInputInfo* ps_input_info,
 	                                                 const GraphicsPrograms&     programs);
 	// Sets the state of a graphics pipeline stream after its shaders: blending, rasterization,

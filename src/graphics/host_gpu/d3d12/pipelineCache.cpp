@@ -1534,7 +1534,7 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 		Log::WriteToConsoleAndLog(fmt::format("compute pipeline {} (guest shader 0x{:016x}) saved to {}\n", m_pipeline_count, input_info.stage.module->info.shader_hash,
 		                                      D3D12::SaveShaderDump(fmt::format("cs_{}_{:016x}", m_pipeline_count, input_info.stage.module->info.shader_hash), dxil, {})));
 	}
-	pipeline->layout.Add(input_info.stage.module->info, shader.dxil.requires_runtime_data);
+	pipeline->layout.Add(input_infovertex_info[0].stage.module->info, shader.dxil.requires_runtime_data);
 	pipeline->root_signature = GetRootSignature(pipeline->layout);
 	if (!shader.dxil.IsValid() || pipeline->root_signature == nullptr) {
 		found->second = std::move(pipeline);
@@ -1556,6 +1556,7 @@ PipelineCache::Pipeline& PipelineCache::GetComputePipeline(const ShaderComputeIn
 
 PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const std::array<ShaderVertexInputInfo, 3>& vertex_info,
                                                                const CompiledProgram&       program) {
+	const bool tess = vertex_info[0].logical_stage == ShaderType::Local;
 	// (Translate locks the cache itself.)
 	const auto* shader_ptr = Translate(program, ShaderType::Compute);
 	static const Shader skipped;
@@ -1569,7 +1570,7 @@ PipelineCache::Pipeline& PipelineCache::GetMeshComputePipeline(const std::array<
 	auto pipeline = std::make_unique<Pipeline>();
 	NameNewPipeline(*pipeline, fmt::format("ms as cs {:x}", program.id));
 	pipeline->trace.dxil = {&shader.dxil};
-	pipeline->layout.Add(vertex_info.stage.module->info, shader.dxil.requires_runtime_data);
+	pipeline->layout.Add(vertex_infovertex_info[0].stage.module->info, shader.dxil.requires_runtime_data);
 	pipeline->layout.mesh_scratch = RootLayout::MeshScratch::Write;
 	pipeline->root_signature      = GetRootSignature(pipeline->layout);
 	if (!shader.dxil.IsValid() || pipeline->root_signature == nullptr) {
@@ -1637,6 +1638,9 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
         const bool  tess   = vertex_info[0].logical_stage == ShaderType::Local;
         const uint64_t hs_id = tess ? programs.vertex[1].id : 0;
         const uint64_t ds_id = tess ? programs.vertex[2].id : 0;
+        const bool  tess   = vertex_info[0].logical_stage == ShaderType::Local;
+        const uint64_t hs_id = tess ? programs.vertex[1].id : 0;
+        const uint64_t ds_id = tess ? programs.vertex[2].id : 0;
 	auto [found, inserted] =
 	    m_linked.try_emplace(
             LinkKey {vertex.id, ps ? pixel.id : 0, hs_id, ds_id, rect_list, sample_rate_shading, clip_halfz});
@@ -1646,7 +1650,7 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 	KYTY_PROFILER_BLOCK("D3D12 link shaders");
 	const CompileStepTimer step_timer(Common::DebugCounters::Counter::PipelineCreateNs);
 	using Kind = D3D12::LinkedStage::Kind;
-	const bool mesh = vertex_info.stage.module->info.stage == ShaderType::Mesh;
+	const boolconst bool mesh = vertex_info[0].stage.module->info.stage == ShaderType::Mesh;
 	// A mesh program run as a compute shader is drawn by its vertex stage, which reads its records.
 	const bool emulated = mesh && vertex_info.mesh.compute_emulation;
 	EXIT_IF(emulated && vertex.mesh_fetch == nullptr);
@@ -1660,7 +1664,7 @@ const PipelineCache::LinkedPrograms& PipelineCache::Link(const GraphicsPrograms&
 		const auto parameters = ps_input_info != nullptr
 		                            ? RectListParameters(*ps_input_info, ps_input_info->stage.module->info)
 		                            : std::vector<RectListParameter> {};
-		geometry = BuildRectListGeometryShader(parameters, vertex_info.stage.module->info.param_export_mask);
+		geometry = BuildRectListGeometryShader(parameters, vertex_info[0].stage.module->info.param_export_mask);
 		stages.push_back({geometry, Kind::Geometry});
 	}
 	if (ps) {
@@ -1692,6 +1696,7 @@ std::unique_ptr<PipelineCache::Pipeline>
 PipelineCache::CreateGraphicsPipeline(const GraphicsKey& key, const std::array<ShaderVertexInputInfo, 3>& vs_input_info,
                                       const ShaderPixelInputInfo* ps_input_info,
                                       const GraphicsPrograms&     programs) {
+	const bool tess = vs_input_info[0].logical_stage == ShaderType::Local;
 	const auto& params    = key.state.static_params;
 	const bool  mesh      = vs_input_info[0].stage.module->info.stage == ShaderType::Mesh;
 	// A mesh program run as a compute shader is drawn like any vertex stage (the one that reads its
@@ -1901,7 +1906,7 @@ PipelineCache::Pipeline& PipelineCache::GetGraphicsPipeline(CommandBuffer& comma
 	const auto  vertex_info   = state.VertexStages();
 	const auto* ps_input_info = state.ps_active ? &state.ps_input_info : nullptr;
 	const auto& vs_input_info = vertex_info.front();
-	EXIT_IF(vs_input_info[0].stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
+	EXIT_IF(vs_input_info.stage.module == nullptr || (ps_input_info != nullptr && ps_input_info->stage.module == nullptr));
 
 	GraphicsPrograms        programs;
 	std::array<uint64_t, 3> vertex_ids {};
