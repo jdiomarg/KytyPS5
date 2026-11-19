@@ -6,7 +6,9 @@
 
 #if KYTY_PLATFORM == KYTY_PLATFORM_WINDOWS
 #include <windows.h>
+#if !defined(KYTY_PLATFORM_UWP)
 #include <shlobj.h>
+#endif
 #endif
 
 #include <chrono>
@@ -21,7 +23,7 @@ namespace Loader::CrashReport {
 namespace {
 
 std::filesystem::path ComputeDirectory() {
-#if KYTY_PLATFORM == KYTY_PLATFORM_WINDOWS
+#if KYTY_PLATFORM == KYTY_PLATFORM_WINDOWS && !defined(KYTY_PLATFORM_UWP)
     PWSTR p = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &p))) {
         std::filesystem::path dir{p};
@@ -30,6 +32,9 @@ std::filesystem::path ComputeDirectory() {
         dir /= L"crashes";
         return dir;
     }
+    return std::filesystem::current_path() / "crashes";
+#elif KYTY_PLATFORM == KYTY_PLATFORM_WINDOWS
+    // UWP fallback (crash reports will land in the app's current working directory)
     return std::filesystem::current_path() / "crashes";
 #else
     const char* xdg = std::getenv("XDG_DATA_HOME");
